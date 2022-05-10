@@ -1,5 +1,6 @@
 ﻿namespace Lesson15_2
 {
+    [Serializable]
     public class Car
     {
         public int Year { get; set; }

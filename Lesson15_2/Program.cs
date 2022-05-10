@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -18,7 +21,7 @@ namespace Lesson15_2
 
             using var writer = new XmlTextWriter("cars.xml", Encoding.Default);
 
-            writer.Formatting = Formatting.Indented;
+            writer.Formatting = System.Xml.Formatting.Indented;
 
             writer.WriteStartDocument();
             writer.WriteStartElement("cars");
@@ -38,8 +41,6 @@ namespace Lesson15_2
             writer.WriteEndDocument();
 
         }
-
-
 
         static void XmlRead()
         {
@@ -115,8 +116,6 @@ namespace Lesson15_2
             Console.WriteLine("Ready");
         }
 
-
-
         static void XmlDeserialize()
         {
             TranslatorArmy army = null;
@@ -132,6 +131,101 @@ namespace Lesson15_2
 
 
 
+        static void JSONSerializeMethod()
+        {
+            Car[] cars =
+            {
+                new Car{ Model ="Mustang", Make ="Ford", Year= 1964 },
+                new Car{ Model ="La Ferrari", Make ="Ferrari", Year= 2000 },
+                new Car{ Model ="Chiron", Make ="Buggati", Year= 2018 }
+            };
+
+
+            //// Way 1
+            {
+                // JsonSerializerOptions op = new JsonSerializerOptions();
+                // op.WriteIndented = true;
+                //Console.WriteLine(JsonSerializer.Serialize(cars, op));
+
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(cars);
+                File.WriteAllText("cars.json", jsonString);
+            }
+
+
+
+
+            //// Way 2
+            {
+                var jsonString = JsonConvert.SerializeObject(cars, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText("carsWithNewtonsoft.json", jsonString);
+            }
+
+
+
+        }
+
+
+
+        static void JSONDeserializeMethod()
+        {
+            Car[] cars = null;
+
+            //// Way 1
+            {
+
+                // using FileStream fs = new FileStream("cars.json", FileMode.Open);
+                // cars = System.Text.Json.JsonSerializer.Deserialize<Car[]>(fs);
+            }
+
+
+            //// Way 2
+            {
+                var stringData = File.ReadAllText("carsWithNewtonsoft.json");
+                cars = JsonConvert.DeserializeObject<Car[]>(stringData);
+            }
+
+
+            foreach (var car in cars)
+                Console.WriteLine(car);
+        }
+
+
+
+
+
+        static void BinarySerializeMethod()
+        {
+            Car[] cars =
+            {
+                new Car{ Model ="Mustang", Make ="Ford", Year= 1964 },
+                new Car{ Model ="La Ferrari", Make ="Ferrari", Year= 2000 },
+                new Car{ Model ="Chiron", Make ="Buggati", Year= 2018 }
+            };
+
+
+            var bf = new BinaryFormatter();
+            using var fs = new FileStream("binaryCars.bin", FileMode.Create);
+
+            bf.Serialize(fs, cars);
+
+            Console.WriteLine("Ready");
+
+        }
+
+        static void BinaryDeserializeMethod()
+        {
+            Car[] cars = null;
+
+            var bf = new BinaryFormatter();
+            using var fs = new FileStream("binaryCars.bin", FileMode.Open);
+
+            cars = bf.Deserialize(fs) as Car[];
+
+
+            foreach (var car in cars)
+                Console.WriteLine(car);
+        }
+
 
 
         static void Main()
@@ -144,6 +238,16 @@ namespace Lesson15_2
 
             // XmlSerialize();
             // XmlDeserialize();
+
+
+
+            // JSONSerializeMethod();
+            // JSONDeserializeMethod();
+
+
+
+            // BinarySerializeMethod();
+            // BinaryDeserializeMethod();
         }
     }
 }
